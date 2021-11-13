@@ -5,6 +5,13 @@ date: "27th June 2020"
 output: html_document
 ---
 
+## DTedit 2.3.2
+13th November 2021
+
+### Bugfix
+
+* Better handling of tibbles. Convert to data.frame as soon as possible.
+
 ## DTedit 2.3.1
 22nd October 2021
 

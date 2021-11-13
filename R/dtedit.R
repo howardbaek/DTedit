@@ -360,9 +360,12 @@ dteditmod <- function(input, output, session,
   }
 
   thedataCopy <- if (shiny::is.reactive(shiny::isolate(thedata))) {
-    shiny::isolate(thedata())
+    as.data.frame(shiny::isolate(thedata()))
   } else {
-    thedata
+    as.data.frame(thedata)
+    # convert tibbles to dataframe
+    # converting list columns to characters (done later)
+    # fails with tibbles, as 'is.list' is TRUE for all columns in tibbles
   }
   # if a reactive has been passed, obtain the value
   # Some basic parameter checking
@@ -1174,7 +1177,7 @@ dteditmod <- function(input, output, session,
       shiny::fluidPage(
         shiny::div(
           if (datatable.rownames) # rownames are being displayed
-            shiny::h4(rownames(thedata)[row])
+            shiny::h4(rownames(result$thedata)[row])
         ),
         shiny::div(
           shiny::htmlOutput(
@@ -1294,7 +1297,7 @@ dteditmod <- function(input, output, session,
       shiny::fluidPage(
         shiny::div(
           if (datatable.rownames) # rownames are being displayed
-            shiny::h4(rownames(thedata)[row])
+            shiny::h4(rownames(result$thedata)[row])
         ),
         shiny::div(
           shiny::htmlOutput(
