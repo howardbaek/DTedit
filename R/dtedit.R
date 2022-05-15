@@ -1418,12 +1418,12 @@ dteditmod <- function(input, output, session,
       },
       if (show.update) {
         shiny::actionButton(
-          ns(paste0(name, "_edit")), label.edit, icon = icon.edit
+          ns(paste0(name, "_edit")), label.edit, class = "btn btn-primary", icon = icon.edit
         )
       },
       if (show.delete) {
         shiny::actionButton(
-          ns(paste0(name, "_remove")), label.delete, icon = icon.delete
+          ns(paste0(name, "_remove")), label.delete, class = "btn btn-primary", icon = icon.delete
         )
       },
       if (show.copy) {
