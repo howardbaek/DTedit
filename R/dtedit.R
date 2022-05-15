@@ -1302,7 +1302,8 @@ dteditmod <- function(input, output, session,
         shiny::p(text.delete.modal),
         fields
       ),
-      footer = shiny::tagList(modalButton(label.cancel, icon = icon("times")),
+      footer = shiny::tagList(modalButton(label.cancel, class = "btn btn-primary",
+                                          icon = icon("times")),
                              shiny::actionButton(
                                ns(paste0(name, "_delete")), label.delete, 
                                class = "btn btn-primary", icon = icon("save")
