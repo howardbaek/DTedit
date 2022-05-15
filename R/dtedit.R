@@ -1302,11 +1302,11 @@ dteditmod <- function(input, output, session,
         shiny::p(text.delete.modal),
         fields
       ),
-      footer = shiny::column(modalButton(label.cancel),
+      footer = shiny::tagList(modalButton(label.cancel, icon = icon("times")),
                              shiny::actionButton(
-                               ns(paste0(name, "_delete")), label.delete
-                             ),
-                             width = 12
+                               ns(paste0(name, "_delete")), label.delete, 
+                               class = "btn btn-primary", icon = icon("save")
+                             )
       ),
       size = modal.size
     )
