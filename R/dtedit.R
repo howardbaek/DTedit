@@ -1182,10 +1182,9 @@ dteditmod <- function(input, output, session,
           style = "color:red"),
         fields
       ),
-      footer = column(
-        shiny::actionButton(ns(paste0(name, "_update_cancel")), label.cancel),
-        shiny::actionButton(ns(paste0(name, "_update")), label.save),
-        width = 12
+      footer = shiny::tagList(
+        shiny::actionButton(ns(paste0(name, "_update_cancel")), label.cancel, class = "btn btn-primary", icon = icon("times")),
+        shiny::actionButton(ns(paste0(name, "_update")), label.save, class = "btn btn-primary", icon = icon("save"))
       ),
       size = modal.size
     )
