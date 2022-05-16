@@ -358,7 +358,7 @@ dteditmod <- function(input, output, session,
     # 'ns' becomes a 'change nothing' function
     moduleMode <- FALSE # not in 'module' mode
   }
-
+  
   thedataCopy <- if (shiny::is.reactive(shiny::isolate(thedata))) {
     shiny::isolate(thedata())
   } else {
@@ -379,25 +379,25 @@ dteditmod <- function(input, output, session,
   } else if (!all(delete.info.cols %in% names(thedataCopy))) {
     stop("Not all delete.info.cols are in the data.")
   }
-
+  
   DataTableName <- paste0(name, "dt")
-
+  
   result <- shiny::reactiveValues()
   result$thedata <- thedataCopy
   result$view.cols <- view.cols
   result$edit.cols <- edit.cols
   result$edit.count <- 0 # number of edits (Add/Delete/Edit/Copy) through dtedit
   result$rows_selected <- NULL # no row selected initially
-
+  
   dt.proxy <- DT::dataTableProxy(DataTableName)
-
+  
   selectInputMultiple <- function(...) {
     shiny::selectInput(multiple = TRUE, selectize = selectize, ...)
   }
   selectizeInputMultiple <- function(...) {
     shiny::selectizeInput(multiple = TRUE, ...)
   }
-
+  
   valid.input.types <- c(
     "dateInput", "datetimeInput", "selectInput", "selectizeInput",
     "numericInput", "textInput", "textAreaInput", "passwordInput",
@@ -452,7 +452,7 @@ dteditmod <- function(input, output, session,
       })
     }
   }
-
+  
   addActionButtons <- function(data, action.buttons) {
     # data : dataframe
     # action.buttons : named list of lists
@@ -466,7 +466,7 @@ dteditmod <- function(input, output, session,
     # returns list
     #  $dataframe
     #  $button.colNames - the column names of the action buttons
-
+    
     # create a vector of shiny inputs
     # of length 'len'
     # input IDs have prefix 'id', a numeric suffix from '1' to 'len'
@@ -493,7 +493,7 @@ dteditmod <- function(input, output, session,
     #    ns("select_button"),
     #    '\", this.id, {priority: \"event\"})')
     #   )
-
+    
     view.cols.andButtons <- names(data) # used to store the order of columns
     # by default, view columns 'and buttons' are the same as view.cols
     button.colNames <- NULL # later will store vector of button column names
@@ -534,7 +534,7 @@ dteditmod <- function(input, output, session,
     #  data-frame to a vector
     return(list(data = data, button.colNames = button.colNames))
   }
-
+  
   thedataWithButtons <- addActionButtons(
     thedataCopy[, view.cols, drop = FALSE], action.buttons
   )
@@ -562,7 +562,7 @@ dteditmod <- function(input, output, session,
   outputOptions(output, DataTableName, suspendWhenHidden = FALSE)
   # without turning off suspendWhenHidden, changes are
   #  not rendered if containing tab is not visible
-
+  
   # if a row is selected in the dataframe named in 'DataTableName'
   # then set result$rows_selected to that row
   # this will be returned to the caller
@@ -570,7 +570,7 @@ dteditmod <- function(input, output, session,
     input[[paste0(DataTableName, "_rows_selected")]], {
       result$rows_selected <- input[[paste0(DataTableName, "_rows_selected")]]
     })
-
+  
   getFields <- function(typeName, values) {
     # creates input fields when adding or editing a row
     # 'typeName' is either '_add_' or '_edit_'
@@ -579,14 +579,14 @@ dteditmod <- function(input, output, session,
     # if adding a 'new' row, then 'values' will be 'missing'
     #
     # returns a list of shiny inputs, 'fields'
-
+    
     if (grepl("selectize", inputTypes) && !is.null(selectize.options)) {
       # if *any* of the selectize input-type variants in the inputTypes
       # and selectize.options is actually defined
       #
       # then are the selectize.options applied to *all* the selectize input
       # types, or are they individually defined?
-
+      
       selectize_individual <- TRUE # by default, assume individually defined
       edit.cols.selectize <- edit.cols[grepl("selectize", inputTypes)]
       # the editable columns which are 'selectize' variants
@@ -604,7 +604,7 @@ dteditmod <- function(input, output, session,
     } else {
       selectize_individual <- FALSE
     }
-
+    
     fields <- list()
     for (i in seq_along(edit.cols)) {
       if (inputTypes[i] == "dateInput") {
@@ -918,15 +918,15 @@ dteditmod <- function(input, output, session,
     }
     return(fields)
   }
-
+  
   output[[paste0(name, "_message")]] <- shiny::renderUI("")
-
+  
   updateData <- function(proxy, data, ...) {
     # updates data displayed in DT datatable
     #
     # will reference 'global' action.buttons variable
     #  when callling function 'addActionButtons'
-
+    
     # Convert any list columns to characters before displaying
     for (i in seq_len(ncol(data))) {
       if (is.list(data[, i])) {
@@ -939,13 +939,13 @@ dteditmod <- function(input, output, session,
         # causes data[,i] column to be deleted!
       }
     }
-
+    
     DT::replaceData(proxy, addActionButtons(data, action.buttons)$data, ...)
     result$rows_selected <- NULL # no row selected after each edit
   }
-
+  
   ##### inputEvent observeEvent helper ####################################
-
+  
   inputEvent_object <- R6::R6Class("inputEvent_object", list(
     handles = NULL,
     # list of observeEvents
@@ -1009,12 +1009,12 @@ dteditmod <- function(input, output, session,
       }
     }
   ))
-
+  
   inputEvent_handles <- NULL
   # will be used by the functions which call inputEvent_handler
-
+  
   ##### Insert functions #####################################################
-
+  
   observeEvent(input[[paste0(name, "_add")]], {
     # if the 'Add' button is clicked then
     # the 'addModal' popup is generated, with 'missing' values
@@ -1023,7 +1023,7 @@ dteditmod <- function(input, output, session,
       inputEvent_handles <<- inputEvent_object$new("_add")
     }
   })
-
+  
   addModal <- function(row, values) {
     # 'addModal' popup is generated when
     # the '_add' button event is observed (with missing 'values')
@@ -1050,13 +1050,13 @@ dteditmod <- function(input, output, session,
       size = modal.size
     )
   }
-
+  
   observeEvent(input[[paste0(name, "_insert_cancel")]], {
     # the '_cancel' event is observed from the 'addModal' popup
     inputEvent_handles$finalize() # remove the observeEvents
     shiny::removeModal() # close the modal without saving
   })
-
+  
   insert_event <- shiny::reactive({input[[paste0(name, "_insert")]]})
   insert_event_t <- shiny::throttle(insert_event, click.time.threshold * 1000)
   # '_insert' event generated from the 'addModal' popup
@@ -1134,9 +1134,9 @@ dteditmod <- function(input, output, session,
       return(FALSE)
     })
   })
-
+  
   ##### Copy functions #######################################################
-
+  
   observeEvent(input[[paste0(name, "_copy")]], {
     # if '_copy' event is observed, call the 'addModal' popup
     # with pre-filled values
@@ -1150,9 +1150,9 @@ dteditmod <- function(input, output, session,
       }
     }
   })
-
+  
   ##### Update functions #####################################################
-
+  
   observeEvent(input[[paste0(name, "_edit")]], {
     # if '_edit' event is observed, call the 'editModal' popup
     row <- input[[paste0(name, "dt_rows_selected")]]
@@ -1161,7 +1161,7 @@ dteditmod <- function(input, output, session,
       inputEvent_handles <<- inputEvent_object$new("_edit")
     }
   })
-
+  
   editModal <- function(row) {
     # 'editModal' popup created when '_edit' event is observed
     #
@@ -1189,13 +1189,13 @@ dteditmod <- function(input, output, session,
       size = modal.size
     )
   }
-
+  
   observeEvent(input[[paste0(name, "_update_cancel")]], {
     # the '_cancel' event is observed from the 'editModal' popup
     inputEvent_handles$finalize() # remove the observeEvents
     shiny::removeModal() # close the modal without saving
   })
-
+  
   update_event <- shiny::reactive({input[[paste0(name, "_update")]]})
   update_event_t <- shiny::throttle(update_event, click.time.threshold * 1000)
   # the '_update' event is observed from the 'editModal' popup
@@ -1264,9 +1264,9 @@ dteditmod <- function(input, output, session,
     }
     return(FALSE)
   })
-
+  
   ##### Delete functions #####################################################
-
+  
   observeEvent(input[[paste0(name, "_remove")]], {
     # if the '_remove' event is observed, the 'deleteModal' popup is opened
     row <- input[[paste0(name, "dt_rows_selected")]]
@@ -1276,7 +1276,7 @@ dteditmod <- function(input, output, session,
       }
     }
   })
-
+  
   deleteModal <- function(row) {
     # if the '_remove' event is observed, the 'deleteModal' popup is opened
     #
@@ -1302,20 +1302,17 @@ dteditmod <- function(input, output, session,
         shiny::p(text.delete.modal),
         fields
       ),
-      footer = shiny::tagList(modalButton(label.cancel, class = "btn btn-primary",
-                                          icon = icon("times")),
-                             shiny::actionButton(
-                               ns(paste0(name, "_delete")), label.delete, 
-                               class = "btn btn-primary", icon = icon("save")
-                             )
+      footer = shiny::tagList( 
+        shiny::actionButton(ns(paste0(name, "_delete_cancel")), label.cancel, class = "btn btn-primary", icon = icon("times")),
+        shiny::actionButton(ns(paste0(name, "_delete")), label.delete, class = "btn btn-primary", icon = icon("save"))
       ),
       size = modal.size
     )
   }
-
+  
   observeEvent(input[[paste0(name, "_delete")]], {
     # the '_delete' event is observed from the 'deleteModal' popup
-
+    
     row <- input[[paste0(name, "dt_rows_selected")]]
     if (!is.null(row) && row > 0) {
       tryCatch({
@@ -1347,19 +1344,25 @@ dteditmod <- function(input, output, session,
     }
     return(FALSE)
   })
-
+  
+  observeEvent(input[[paste0(name, "_delete_cancel")]], {
+    # the '_delete_cancel' event is observed from the 'deleteModal' popup
+    inputEvent_handles$finalize() # remove the observeEvents
+    shiny::removeModal() # close the modal without saving
+  })
+  
   ##### Action button callbacks ################################################
-
+  
   observeEvent(input$select_button, {
     # triggered by an 'action' button being clicked
-
+    
     # row <- input[[paste0(name, "dt_rows_selected")]]
     # unfortunately, the 'row' selected this way seems to be unreliable
     # determine the row number from the button selected
     #  the buttons have been 'numbered' in the suffix
     x <- strsplit(input$select_button, "_")[[1]]
     selectedRow <- as.numeric(x[length(x)])
-
+    
     newdata <- result$thedata
     tryCatch({
       callback.data <- callback.actionButton(
@@ -1392,9 +1395,9 @@ dteditmod <- function(input, output, session,
     }
     )
   })
-
+  
   ##### React to changes in 'thedata' if that variable is a reactive ######
-
+  
   if (shiny::is.reactive(thedata)) {
     observeEvent(thedata(), {
       result$thedata <- as.data.frame(shiny::isolate(thedata()))
@@ -1407,9 +1410,9 @@ dteditmod <- function(input, output, session,
       )
     })
   }
-
+  
   ##### Build the UI for the DataTable and buttons ###########################
-
+  
   output[[name]] <- shiny::renderUI({
     shiny::div(
       if (show.insert) {
@@ -1438,7 +1441,7 @@ dteditmod <- function(input, output, session,
   outputOptions(output, name, suspendWhenHidden = FALSE)
   # if suspendWhenHidden is true, then
   # the table is not rendered if the tab is hidden
-
+  
   return(result)
   # $edit.count only incremented by changes made through dtedit GUI
   # does not include edits created through response
@@ -1469,7 +1472,7 @@ dteditmod <- function(input, output, session,
 #' @export
 dteditmodUI <- function(id) {
   ns <- shiny::NS(id)
-
+  
   shiny::tagList(
     shiny::uiOutput(ns("editdt"))
   )
