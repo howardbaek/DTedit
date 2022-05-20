@@ -608,10 +608,10 @@ dteditmod <- function(input, output, session,
     fields <- list()
     for (i in seq_along(edit.cols)) {
       if (inputTypes[i] == "dateInput") {
-        value <- ifelse(missing(values),
-                        as.character(Sys.Date()),
-                        as.character(values[, edit.cols[i]])
-        )
+        # debug
+        # print(values[, edit.cols[i]])
+        # print(class(values[, edit.cols[i]]))
+        value <- values[, edit.cols[i]]
         if (!useairDatepicker) {
           fields[[i]] <- shiny::dateInput(
             ns(paste0(name, typeName, edit.cols[i])),
@@ -1167,8 +1167,10 @@ dteditmod <- function(input, output, session,
     #
     # other than being closed/cancelled, the 'editModal' popup
     # can also be closed when the '_update' event is observed
+    
     output[[paste0(name, "_message")]] <- renderUI("")
     fields <- getFields("_edit_", values = result$thedata[row, , drop = FALSE])
+ 
     shiny::modalDialog(
       title = title.edit,
       shiny::fluidPage(
@@ -1180,10 +1182,20 @@ dteditmod <- function(input, output, session,
           shiny::htmlOutput(
             ns(paste0(name, "_message"))),
           style = "color:red"),
-        fields
+        fluidRow(
+          column(4,
+                 fields[1:4]
+          ),
+          column(4,
+                 fields[5:7]
+          ),
+          column(4,
+                 fields[8:12]
+          )
+        )
       ),
       footer = shiny::tagList(
-        shiny::actionButton(ns(paste0(name, "_update_cancel")), label.cancel, class = "btn btn-primary", icon = icon("times")),
+        shiny::actionButton(ns(paste0(name, "_update_cancel")), label.cancel, icon = icon("times")),
         shiny::actionButton(ns(paste0(name, "_update")), label.save, class = "btn btn-primary", icon = icon("save"))
       ),
       size = modal.size
@@ -1303,8 +1315,8 @@ dteditmod <- function(input, output, session,
         fields
       ),
       footer = shiny::tagList( 
-        shiny::actionButton(ns(paste0(name, "_delete_cancel")), label.cancel, class = "btn btn-primary", icon = icon("times")),
-        shiny::actionButton(ns(paste0(name, "_delete")), label.delete, class = "btn btn-primary", icon = icon("save"))
+        shiny::modalButton(label.cancel, icon = icon("times")),
+        shiny::actionButton(ns(paste0(name, "_delete")), label.delete, class = "btn btn-primary", icon = icon("trash"))
       ),
       size = modal.size
     )
@@ -1345,11 +1357,6 @@ dteditmod <- function(input, output, session,
     return(FALSE)
   })
   
-  observeEvent(input[[paste0(name, "_delete_cancel")]], {
-    # the '_delete_cancel' event is observed from the 'deleteModal' popup
-    inputEvent_handles$finalize() # remove the observeEvents
-    shiny::removeModal() # close the modal without saving
-  })
   
   ##### Action button callbacks ################################################
   
@@ -1420,14 +1427,14 @@ dteditmod <- function(input, output, session,
           ns(paste0(name, "_add")), label.add, icon = icon.add
         )
       },
+      if (show.delete) {
+        shiny::actionButton(
+          ns(paste0(name, "_remove")), label.delete, icon = icon.delete
+        )
+      },
       if (show.update) {
         shiny::actionButton(
           ns(paste0(name, "_edit")), label.edit, class = "btn btn-primary", icon = icon.edit
-        )
-      },
-      if (show.delete) {
-        shiny::actionButton(
-          ns(paste0(name, "_remove")), label.delete, class = "btn btn-primary", icon = icon.delete
         )
       },
       if (show.copy) {
